@@ -1,7 +1,7 @@
 ---
 title       : dplyr
 subtitle    : 
-author      : Almost everything from the tutorial from Kevin Markham
+author      : Everything from the tutorial from Kevin Markham
 job         : And Hadley Wikham's dplyr resources without which nothing exists
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : highlight.js  # {highlight.js, prettify, highlight}
@@ -395,6 +395,7 @@ models %>% summarise(rsq = summary(lm)$r.squared)
 ---
 ## Resources
 
+* [Source Code of this slidify presentation](https://github.com/patilv/dplyrtutorial)
 * [Kevin Markham's tutorial](http://www.dataschool.io/dplyr-tutorial-for-faster-data-manipulation-in-r/)
 * [Official dplyr reference manual and vignettes on CRAN](http://cran.r-project.org/web/packages/dplyr/index.html): vignettes are well-written and cover many aspects of dplyr
 * [July 2014 webinar about dplyr (and ggvis) by Hadley Wickham](http://pages.rstudio.net/Webinar-Series-Recording-Essential-Tools-for-R.html) and related [slides/code](https://github.com/rstudio/webinars/tree/master/2014-01): mostly conceptual, with a bit of code
