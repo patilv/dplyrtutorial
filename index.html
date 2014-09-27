@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>dplyr</title>
+  <meta charset="utf-8">
+  <meta name="description" content="dplyr">
+  <meta name="author" content="Almost everything from the tutorial from Kevin Markham">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/mycustom.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>dplyr</h1>
+    <h2></h2>
+    <p>Almost everything from the tutorial from Kevin Markham<br/>And Hadley Wikham's dplyr resources without which nothing exists</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>What is dplyr?</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Tools for data exploration and transformation</li>
+<li>Intuitive to write and easy to read</li>
+<li>Super-fast on data frames</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Installing</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">if (packageVersion(&quot;devtools&quot;) &lt; 1.6) {
+  install.packages(&quot;devtools&quot;)
+}
+devtools::install_github(&quot;hadley/lazyeval&quot;)
+devtools::install_github(&quot;hadley/dplyr&quot;)
+install.packages(c(&quot;hflights&quot;, &quot;Lahman&quot;))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Load our packages</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">suppressMessages(library(dplyr))
+library(hflights)
+</code></pre>
+
+<p>hflights: Dataset on commercial domestic flights that departed Houston (IAH and HOU) in 2011.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Our data</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># explore data
+data(hflights)
+head(hflights,3)
+</code></pre>
+
+<pre><code>##      Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier
+## 5424 2011     1          1         6    1400    1500            AA
+## 5425 2011     1          2         7    1401    1501            AA
+## 5426 2011     1          3         1    1352    1502            AA
+##      FlightNum TailNum ActualElapsedTime AirTime ArrDelay DepDelay Origin
+## 5424       428  N576AA                60      40      -10        0    IAH
+## 5425       428  N557AA                60      45       -9        1    IAH
+## 5426       428  N541AA                70      48       -8       -8    IAH
+##      Dest Distance TaxiIn TaxiOut Cancelled CancellationCode Diverted
+## 5424  DFW      224      7      13         0                         0
+## 5425  DFW      224      6       9         0                         0
+## 5426  DFW      224      5      17         0                         0
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>tbl_df</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Wraps a data frame that prints nicely</p>
+
+<pre><code class="r">flights &lt;- tbl_df(hflights)
+head(flights,3) # Can also use print(flights,3) instead
+</code></pre>
+
+<pre><code>## Source: local data frame [3 x 21]
+## 
+##   Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+## 1 2011     1          1         6    1400    1500            AA       428
+## 2 2011     1          2         7    1401    1501            AA       428
+## 3 2011     1          3         1    1352    1502            AA       428
+## Variables not shown: TailNum (chr), ActualElapsedTime (int), AirTime
+##   (int), ArrDelay (int), DepDelay (int), Origin (chr), Dest (chr),
+##   Distance (int), TaxiIn (int), TaxiOut (int), Cancelled (int),
+##   CancellationCode (chr), Diverted (int)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Reverting back to regular dataframe</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># convert to a normal data frame to see all of the columns
+head(data.frame(flights),3)
+</code></pre>
+
+<pre><code>##      Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier
+## 5424 2011     1          1         6    1400    1500            AA
+## 5425 2011     1          2         7    1401    1501            AA
+## 5426 2011     1          3         1    1352    1502            AA
+##      FlightNum TailNum ActualElapsedTime AirTime ArrDelay DepDelay Origin
+## 5424       428  N576AA                60      40      -10        0    IAH
+## 5425       428  N557AA                60      45       -9        1    IAH
+## 5426       428  N541AA                70      48       -8       -8    IAH
+##      Dest Distance TaxiIn TaxiOut Cancelled CancellationCode Diverted
+## 5424  DFW      224      7      13         0                         0
+## 5425  DFW      224      6       9         0                         0
+## 5426  DFW      224      5      17         0                         0
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Basic single table (df) verbs</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li><code>filter</code>: for subsetting variables</li>
+<li><code>select</code>: for subsetting rows</li>
+<li><code>arrange</code>: for re-ordering rows</li>
+<li><code>mutate</code>: for adding new columns</li>
+<li><code>summarise</code> or <code>summarize</code>: for reducing each group to a smaller number of summary statistics </li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>filter: Keep rows matching criteria</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># base R: flights[flights$Month==1 &amp; flights$DayofMonth==1, ]
+filter(flights, Month==1 &amp; DayofMonth==1)
+</code></pre>
+
+<pre><code>## Source: local data frame [552 x 21]
+## 
+##    Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+## 1  2011     1          1         6    1400    1500            AA       428
+## 2  2011     1          1         6     728     840            AA       460
+## 3  2011     1          1         6    1631    1736            AA      1121
+## 4  2011     1          1         6    1756    2112            AA      1294
+## 5  2011     1          1         6    1012    1347            AA      1700
+## 6  2011     1          1         6    1211    1325            AA      1820
+## 7  2011     1          1         6     557     906            AA      1994
+## 8  2011     1          1         6    1824    2106            AS       731
+## 9  2011     1          1         6     654    1124            B6       620
+## 10 2011     1          1         6    1639    2110            B6       622
+## ..  ...   ...        ...       ...     ...     ...           ...       ...
+## Variables not shown: TailNum (chr), ActualElapsedTime (int), AirTime
+##   (int), ArrDelay (int), DepDelay (int), Origin (chr), Dest (chr),
+##   Distance (int), TaxiIn (int), TaxiOut (int), Cancelled (int),
+##   CancellationCode (chr), Diverted (int)
+</code></pre>
+
+<pre><code class="r"># same as filter(flights, Month==1, DayofMonth==1)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>filter again</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">head(filter(flights, UniqueCarrier==&quot;AA&quot; | UniqueCarrier==&quot;UA&quot;),2) 
+</code></pre>
+
+<pre><code>## Source: local data frame [2 x 21]
+## 
+##   Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+## 1 2011     1          1         6    1400    1500            AA       428
+## 2 2011     1          2         7    1401    1501            AA       428
+## Variables not shown: TailNum (chr), ActualElapsedTime (int), AirTime
+##   (int), ArrDelay (int), DepDelay (int), Origin (chr), Dest (chr),
+##   Distance (int), TaxiIn (int), TaxiOut (int), Cancelled (int),
+##   CancellationCode (chr), Diverted (int)
+</code></pre>
+
+<pre><code class="r">tail(filter(flights, UniqueCarrier==&quot;AA&quot; | UniqueCarrier==&quot;UA&quot;),2)
+</code></pre>
+
+<pre><code>## Source: local data frame [2 x 21]
+## 
+##   Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+## 1 2011    12         30         5    1300    1436            UA       971
+## 2 2011    12         26         1     607     728            UA       978
+## Variables not shown: TailNum (chr), ActualElapsedTime (int), AirTime
+##   (int), ArrDelay (int), DepDelay (int), Origin (chr), Dest (chr),
+##   Distance (int), TaxiIn (int), TaxiOut (int), Cancelled (int),
+##   CancellationCode (chr), Diverted (int)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>filter again</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">filter(flights, UniqueCarrier %in% c(&quot;AA&quot;, &quot;UA&quot;))
+</code></pre>
+
+<pre><code>## Source: local data frame [5,316 x 21]
+## 
+##    Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+## 1  2011     1          1         6    1400    1500            AA       428
+## 2  2011     1          2         7    1401    1501            AA       428
+## 3  2011     1          3         1    1352    1502            AA       428
+## 4  2011     1          4         2    1403    1513            AA       428
+## 5  2011     1          5         3    1405    1507            AA       428
+## 6  2011     1          6         4    1359    1503            AA       428
+## 7  2011     1          7         5    1359    1509            AA       428
+## 8  2011     1          8         6    1355    1454            AA       428
+## 9  2011     1          9         7    1443    1554            AA       428
+## 10 2011     1         10         1    1443    1553            AA       428
+## ..  ...   ...        ...       ...     ...     ...           ...       ...
+## Variables not shown: TailNum (chr), ActualElapsedTime (int), AirTime
+##   (int), ArrDelay (int), DepDelay (int), Origin (chr), Dest (chr),
+##   Distance (int), TaxiIn (int), TaxiOut (int), Cancelled (int),
+##   CancellationCode (chr), Diverted (int)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>select: Pick columns by name</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># base R approach to select DepTime, ArrTime, and FlightNum columns
+head(flights[, c(&quot;DepTime&quot;, &quot;ArrTime&quot;, &quot;FlightNum&quot;)])
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 3]
+## 
+##   DepTime ArrTime FlightNum
+## 1    1400    1500       428
+## 2    1401    1501       428
+## 3    1352    1502       428
+## 4    1403    1513       428
+## 5    1405    1507       428
+## 6    1359    1503       428
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>select again</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># dplyr approach
+print(select(flights, DepTime, ArrTime, FlightNum),n=6)
+</code></pre>
+
+<pre><code>## Source: local data frame [227,496 x 3]
+## 
+##    DepTime ArrTime FlightNum
+## 1     1400    1500       428
+## 2     1401    1501       428
+## 3     1352    1502       428
+## 4     1403    1513       428
+## 5     1405    1507       428
+## 6     1359    1503       428
+## ..     ...     ...       ...
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>select again</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># use colon to select multiple contiguous columns, and use `contains` to match columns by name
+# note: `starts_with`, `ends_with`, and `matches` (for regular expressions) can also be used to match columns by name
+head(select(flights, Year:DayofMonth, contains(&quot;Taxi&quot;), contains(&quot;Delay&quot;)))
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 7]
+## 
+##   Year Month DayofMonth TaxiIn TaxiOut ArrDelay DepDelay
+## 1 2011     1          1      7      13      -10        0
+## 2 2011     1          2      6       9       -9        1
+## 3 2011     1          3      5      17       -8       -8
+## 4 2011     1          4      9      22        3        3
+## 5 2011     1          5      9       9       -3        5
+## 6 2011     1          6      6      13       -7       -1
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h2>Chaining over Nesting?</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># nesting method to select UniqueCarrier and DepDelay columns and filter for delays over 60 minutes
+head(filter(select(flights, UniqueCarrier, DepDelay), DepDelay &gt; 60))
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##   UniqueCarrier DepDelay
+## 1            AA       90
+## 2            AA       67
+## 3            AA       74
+## 4            AA      125
+## 5            AA       82
+## 6            AA       99
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h2>Chaining over Nesting</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">flights %&gt;%
+    select(UniqueCarrier, DepDelay) %&gt;%
+    filter(DepDelay &gt; 60) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##   UniqueCarrier DepDelay
+## 1            AA       90
+## 2            AA       67
+## 3            AA       74
+## 4            AA      125
+## 5            AA       82
+## 6            AA       99
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Chaining</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Chaining increases readability significantly when there are many commands</li>
+<li>Operator is automatically imported from the <a href="https://github.com/smbache/magrittr">magrittr</a> package</li>
+<li>Can be used to replace nesting in R commands outside of dplyr</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>Chaining</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># create two vectors and calculate Euclidian distance between them
+x1 &lt;- 1:5; x2 &lt;- 2:6
+
+# Usual 
+sqrt(sum((x1-x2)^2))
+</code></pre>
+
+<pre><code>## [1] 2.236
+</code></pre>
+
+<pre><code class="r"># chaining method
+(x1-x2)^2 %&gt;% sum() %&gt;% sqrt()
+</code></pre>
+
+<pre><code>## [1] 2.236
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h2>arrange: Reorder rows</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># base R approach to select UniqueCarrier and DepDelay columns and sort by DepDelay
+head(flights[order(flights$DepDelay), c(&quot;UniqueCarrier&quot;, &quot;DepDelay&quot;)])
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##   UniqueCarrier DepDelay
+## 1            OO      -33
+## 2            MQ      -23
+## 3            XE      -19
+## 4            XE      -19
+## 5            CO      -18
+## 6            EV      -18
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>arrange</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># dplyr approach
+flights %&gt;%
+    select(UniqueCarrier, DepDelay) %&gt;%
+    arrange(DepDelay) %&gt;% # arrange(desc(DepDelay)) for descending order
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##   UniqueCarrier DepDelay
+## 1            OO      -33
+## 2            MQ      -23
+## 3            XE      -19
+## 4            XE      -19
+## 5            CO      -18
+## 6            EV      -18
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-20" style="background:;">
+  <hgroup>
+    <h2>mutate: create new variables that are functions of existing variables</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># base R approach to create a new variable Speed (in mph)
+flights$Speed &lt;- flights$Distance / flights$AirTime*60
+head(flights[, c(&quot;Distance&quot;, &quot;AirTime&quot;, &quot;Speed&quot;)])
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 3]
+## 
+##   Distance AirTime Speed
+## 1      224      40 336.0
+## 2      224      45 298.7
+## 3      224      48 280.0
+## 4      224      39 344.6
+## 5      224      44 305.5
+## 6      224      45 298.7
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    <h2>mutate</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># dplyr approach (prints the new variable but does not store it)
+flights %&gt;%
+    select(Distance, AirTime) %&gt;%
+    mutate(Speed = Distance/AirTime*60) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 3]
+## 
+##   Distance AirTime Speed
+## 1      224      40 336.0
+## 2      224      45 298.7
+## 3      224      48 280.0
+## 4      224      39 344.6
+## 5      224      44 305.5
+## 6      224      45 298.7
+</code></pre>
+
+<pre><code class="r"># store the new variable: flights &lt;- flights %&gt;% mutate(Speed = Distance/AirTime*60)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    <h2>summarise/summarize: Reduce multiple variables to values</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Primarily useful with data that has been grouped by one or more variables</li>
+<li><code>group_by</code> creates the groups that will be operated on</li>
+<li><code>summarise</code> uses the provided aggregation function to summarise each group</li>
+</ul>
+
+<pre><code class="r"># base R approaches to calculate the average arrival delay to each destination
+head(aggregate(ArrDelay ~ Dest, flights, mean))
+</code></pre>
+
+<pre><code>##   Dest ArrDelay
+## 1  ABQ    7.226
+## 2  AEX    5.839
+## 3  AGS    4.000
+## 4  AMA    6.840
+## 5  ANC   26.081
+## 6  ASE    6.795
+</code></pre>
+
+<pre><code class="r"># or head(with(flights, tapply(ArrDelay, Dest, mean, na.rm=TRUE)))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    <h2>summarise</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># dplyr approach: create a table grouped by Dest, and then summarise each group by taking the mean of ArrDelay
+flights %&gt;%
+    group_by(Dest) %&gt;%
+    summarise(avg_delay = mean(ArrDelay, na.rm=TRUE)) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##   Dest avg_delay
+## 1  ABQ     7.226
+## 2  AEX     5.839
+## 3  AGS     4.000
+## 4  AMA     6.840
+## 5  ANC    26.081
+## 6  ASE     6.795
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h2>summarise_each/mutate_each: apply the same summary/mutate function(s) to multiple columns at once</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># for each carrier, calculate the percentage of flights cancelled or diverted
+flights %&gt;%
+    group_by(UniqueCarrier) %&gt;%
+    summarise_each(funs(mean), Cancelled, Diverted) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 3]
+## 
+##   UniqueCarrier Cancelled Diverted
+## 1            AA  0.018496 0.001850
+## 2            AS  0.000000 0.002740
+## 3            B6  0.025899 0.005755
+## 4            CO  0.006783 0.002627
+## 5            DL  0.015903 0.003029
+## 6            EV  0.034483 0.003176
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h2>summarise_each</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># for each carrier, calculate the minimum and maximum arrival and departure delays
+flights %&gt;%
+    group_by(UniqueCarrier) %&gt;%
+    summarise_each(funs(min(., na.rm=TRUE), max(., na.rm=TRUE)), matches(&quot;Delay&quot;)) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 5]
+## 
+##   UniqueCarrier ArrDelay_min DepDelay_min ArrDelay_max DepDelay_max
+## 1            AA          -39          -15          978          970
+## 2            AS          -43          -15          183          172
+## 3            B6          -44          -14          335          310
+## 4            CO          -55          -18          957          981
+## 5            DL          -32          -17          701          730
+## 6            EV          -40          -18          469          479
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    <h2>mutate_each</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">flights %&gt;%
+    select(matches(&quot;Delay&quot;)) %&gt;%
+    head(3)
+</code></pre>
+
+<pre><code>## Source: local data frame [3 x 2]
+## 
+##   ArrDelay DepDelay
+## 1      -10        0
+## 2       -9        1
+## 3       -8       -8
+</code></pre>
+
+<pre><code class="r">flights %&gt;%
+    select(matches(&quot;Delay&quot;)) %&gt;%
+    mutate_each(funs(half=./2)) %&gt;%
+    head(3)
+</code></pre>
+
+<pre><code>## Source: local data frame [3 x 2]
+## 
+##   ArrDelay DepDelay
+## 1     -5.0      0.0
+## 2     -4.5      0.5
+## 3     -4.0     -4.0
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h2>n():  counts the number of rows in a group</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># for each day of the year, count the total number of flights and sort in descending order
+flights %&gt;%
+    group_by(Month, DayofMonth) %&gt;%
+    summarise(flight_count = n()) %&gt;%
+    arrange(desc(flight_count)) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 3]
+## Groups: Month
+## 
+##   Month DayofMonth flight_count
+## 1     1          3          702
+## 2     1          2          678
+## 3     1         20          663
+## 4     1         27          663
+## 5     1         13          662
+## 6     1          7          661
+</code></pre>
+
+<pre><code class="r"># rewrite more simply with the `tally` function
+flights %&gt;%
+    group_by(Month, DayofMonth) %&gt;%
+    tally(sort = TRUE)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-28" style="background:;">
+  <hgroup>
+    <h2>n_distinct(vector): counts the number of unique items in that vector</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># for each destination, count the total number of flights and the number of distinct planes that flew there
+flights %&gt;%
+    group_by(Dest) %&gt;%
+    summarise(flight_count = n(), plane_count = n_distinct(TailNum)) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 3]
+## 
+##   Dest flight_count plane_count
+## 1  ABQ         2812         716
+## 2  AEX          724         215
+## 3  AGS            1           1
+## 4  AMA         1297         158
+## 5  ANC          125          38
+## 6  ASE          125          60
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    <h2>Grouping without summarising</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># for each destination, show the number of cancelled and not cancelled flights
+flights %&gt;%
+    group_by(Dest) %&gt;%
+    select(Cancelled) %&gt;%
+    table() %&gt;%
+    head()
+</code></pre>
+
+<pre><code>##      Cancelled
+## Dest     0  1
+##   ABQ 2787 25
+##   AEX  712 12
+##   AGS    1  0
+##   AMA 1265 32
+##   ANC  125  0
+##   ASE  120  5
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-30" style="background:;">
+  <hgroup>
+    <h2>Window Functions</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Aggregation function (like <code>mean</code>) takes n inputs and returns 1 value</li>
+<li><a href="http://cran.r-project.org/web/packages/dplyr/vignettes/window-functions.html">Window function</a> takes n inputs and returns n values</li>
+<li>Includes ranking and ordering functions (like <code>min_rank</code>), offset functions (<code>lead</code> and <code>lag</code>), and cumulative aggregates (like <code>cummean</code>).</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    <h2>Try this</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># for each carrier, calculate which two days of the year they had their longest departure delays
+# note: smallest (not largest) value is ranked as 1, so you have to use `desc` to rank by largest value
+flights %&gt;%
+    group_by(UniqueCarrier) %&gt;%
+    select(Month, DayofMonth, DepDelay) %&gt;%
+    filter(min_rank(desc(DepDelay)) &lt;= 2) %&gt;%
+    arrange(UniqueCarrier, desc(DepDelay)) %&gt;%
+    head()
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 4]
+## Groups: UniqueCarrier
+## 
+##   UniqueCarrier Month DayofMonth DepDelay
+## 1            AA    12         12      970
+## 2            AA    11         19      677
+## 3            AS     2         28      172
+## 4            AS     7          6      138
+## 5            B6    10         29      310
+## 6            B6     8         19      283
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-32" style="background:;">
+  <hgroup>
+    <h2>Other things to play with</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># for each carrier, calculate which two days of the year they had their longest departure delays --- rewrite previous with the `top_n` function
+flights %&gt;%
+    group_by(UniqueCarrier) %&gt;%
+    select(Month, DayofMonth, DepDelay) %&gt;%
+    top_n(2) %&gt;%
+    arrange(UniqueCarrier, desc(DepDelay))
+
+# for each month, calculate the number of flights and the change from the previous month
+flights %&gt;%
+    group_by(Month) %&gt;%
+    summarise(flight_count = n()) %&gt;%
+    mutate(change = flight_count - lag(flight_count))
+
+# rewrite previous with the `tally` function
+flights %&gt;%
+    group_by(Month) %&gt;%
+    tally() %&gt;%
+    mutate(change = n - lag(n))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-33" style="background:;">
+  <hgroup>
+    <h2>Other Useful Convenience Functions</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># randomly sample a fixed number of rows, without replacement
+flights %&gt;% sample_n(5)
+
+# randomly sample a fraction of rows, with replacement
+flights %&gt;% sample_frac(0.25, replace=TRUE)
+
+# base R approach to view the structure of an object
+str(flights)
+
+# dplyr approach: better formatting, and adapts to your screen width
+glimpse(flights)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-34" style="background:;">
+  <hgroup>
+    <h2>do : for doing arbitrary operations</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">mtcars %&gt;% group_by(cyl) %&gt;% do(head(.,2))
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 11]
+## Groups: cyl
+## 
+##    mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+## 1 22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
+## 2 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+## 3 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+## 4 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+## 5 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+## 6 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+</code></pre>
+
+<pre><code class="r"># Another example
+models &lt;- mtcars %&gt;% group_by(cyl) %&gt;% do(lm = lm(mpg ~ wt, data = .))
+models %&gt;% summarise(rsq = summary(lm)$r.squared)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-35" style="background:;">
+  <hgroup>
+    <h2>Binary verbs</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>4 joins from SQL</p>
+
+<ul>
+<li><code>inner_join(x, y)</code>: matching x + y</li>
+<li><code>left_join(x, y)</code> : all x + matching y</li>
+<li><code>semi_join(x, y)</code> : all x with match in y</li>
+<li><code>anti_join(x, y)</code> : all x without match in y</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-36" style="background:;">
+  <hgroup>
+    <h2>Resources</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><a href="http://www.dataschool.io/dplyr-tutorial-for-faster-data-manipulation-in-r/">Kevin Markham&#39;s tutorial</a></li>
+<li><a href="http://cran.r-project.org/web/packages/dplyr/index.html">Official dplyr reference manual and vignettes on CRAN</a>: vignettes are well-written and cover many aspects of dplyr</li>
+<li><a href="http://pages.rstudio.net/Webinar-Series-Recording-Essential-Tools-for-R.html">July 2014 webinar about dplyr (and ggvis) by Hadley Wickham</a> and related <a href="https://github.com/rstudio/webinars/tree/master/2014-01">slides/code</a>: mostly conceptual, with a bit of code</li>
+<li><a href="https://www.dropbox.com/sh/i8qnluwmuieicxc/AAAgt9tIKoIm7WZKIyK25lh6a">dplyr tutorial by Hadley Wickham</a> at the <a href="http://user2014.stat.ucla.edu/">useR! 2014 conference</a>: excellent, in-depth tutorial with lots of example code (Dropbox link includes slides, code files, and data files)</li>
+<li><a href="https://github.com/hadley/dplyr">dplyr GitHub repo</a> and <a href="https://github.com/hadley/dplyr/releases">list of releases</a></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='What is dplyr?'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Installing'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Load our packages'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Our data'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='tbl_df'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Reverting back to regular dataframe'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Basic single table (df) verbs'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='filter: Keep rows matching criteria'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='filter again'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='filter again'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='select: Pick columns by name'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='select again'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='select again'>
+         13
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=14 title='Chaining over Nesting?'>
+         14
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=15 title='Chaining over Nesting'>
+         15
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=16 title='Chaining'>
+         16
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=17 title='Chaining'>
+         17
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=18 title='arrange: Reorder rows'>
+         18
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=19 title='arrange'>
+         19
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=20 title='mutate: create new variables that are functions of existing variables'>
+         20
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=21 title='mutate'>
+         21
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=22 title='summarise/summarize: Reduce multiple variables to values'>
+         22
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=23 title='summarise'>
+         23
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=24 title='summarise_each/mutate_each: apply the same summary/mutate function(s) to multiple columns at once'>
+         24
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=25 title='summarise_each'>
+         25
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=26 title='mutate_each'>
+         26
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=27 title='n():  counts the number of rows in a group'>
+         27
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=28 title='n_distinct(vector): counts the number of unique items in that vector'>
+         28
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=29 title='Grouping without summarising'>
+         29
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=30 title='Window Functions'>
+         30
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=31 title='Try this'>
+         31
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=32 title='Other things to play with'>
+         32
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=33 title='Other Useful Convenience Functions'>
+         33
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=34 title='do : for doing arbitrary operations'>
+         34
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=35 title='Binary verbs'>
+         35
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=36 title='Resources'>
+         36
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
